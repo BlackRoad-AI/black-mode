@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Black Mode — Sovereign AI IDE | BlackRoad OS</title>
+<meta name="description" content="AI coding assistant that runs entirely on your hardware. Ollama-powered, 52 TOPS local inference, zero data leaves your network.">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --gradient: linear-gradient(90deg, #FF6B2B, #FF2255, #CC00AA, #8844FF, #4488FF, #00D4FF);
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --border: #1a1a1a;
+  --text: #e0e0e0;
+  --text-dim: #888888;
+  --heading: #ffffff;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-heading);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Navigation */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0,0,0,0.9);
+  border-bottom: 1px solid var(--border);
+}
+
+nav .logo {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--heading);
+  text-decoration: none;
+}
+
+nav .logo span { font-weight: 300; color: var(--text-dim); }
+
+nav .nav-links { display: flex; gap: 2rem; align-items: center; }
+nav .nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+nav .nav-links a:hover { color: var(--heading); }
+
+.btn-primary {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  background: var(--gradient);
+  color: #000;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+.btn-primary:hover { opacity: 0.9; }
+
+.btn-secondary {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  background: transparent;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s;
+}
+.btn-secondary:hover { border-color: #444; color: var(--heading); }
+
+/* Hero Section */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(ellipse at center, rgba(136,68,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+  font-family: var(--font-mono);
+}
+
+.hero-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00ff88;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hero h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(3rem, 7vw, 6rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--heading);
+  margin-bottom: 1.5rem;
+  max-width: 900px;
+}
+
+.hero .subtitle {
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  color: var(--text-dim);
+  max-width: 650px;
+  margin-bottom: 3rem;
+  line-height: 1.8;
+}
+
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 4rem;
+  padding-top: 3rem;
+  border-top: 1px solid var(--border);
+}
+
+.hero-stats .stat { text-align: center; }
+.hero-stats .stat-value {
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--heading);
+}
+.hero-stats .stat-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 0.3rem;
+}
+
+/* Section base */
+section {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+section h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 1rem;
+}
+
+section .section-sub {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  max-width: 600px;
+  margin-bottom: 3rem;
+}
+
+/* Code Demo */
+.code-demo {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 3rem auto;
+  max-width: 800px;
+}
+
+.code-demo .code-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.code-demo .code-header .dot-r { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+.code-demo .code-header .dot-y { width: 12px; height: 12px; border-radius: 50%; background: #ffbd2e; }
+.code-demo .code-header .dot-g { width: 12px; height: 12px; border-radius: 50%; background: #28c840; }
+.code-demo .code-header span {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.code-demo pre {
+  padding: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.8;
+  color: var(--text);
+  overflow-x: auto;
+}
+
+.code-demo .keyword { color: #CC00AA; }
+.code-demo .string { color: #00D4FF; }
+.code-demo .comment { color: #555; }
+.code-demo .function { color: #FF6B2B; }
+.code-demo .number { color: #8844FF; }
+
+/* Feature Cards Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: border-color 0.3s;
+}
+
+.feature-card:hover { border-color: #333; }
+
+.feature-card .icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+  background: #111;
+  border: 1px solid var(--border);
+}
+
+.feature-card h3 {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 0.8rem;
+}
+
+.feature-card p {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* Architecture Section */
+.arch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.arch-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.arch-card .arch-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.8rem;
+}
+
+.arch-card h4 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 0.6rem;
+}
+
+.arch-card p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.arch-card .arch-specs {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.arch-card .arch-spec {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #111;
+  font-size: 0.85rem;
+}
+
+.arch-card .arch-spec .label { color: var(--text-dim); }
+.arch-card .arch-spec .value { color: var(--heading); font-family: var(--font-mono); }
+
+/* Models Section */
+.models-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+}
+
+.models-table thead th {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.models-table tbody td {
+  padding: 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #0d0d0d;
+}
+
+.models-table tbody tr:hover { background: #050505; }
+
+.model-name { color: var(--heading); font-weight: 600; }
+.model-size { font-family: var(--font-mono); color: var(--text-dim); }
+.model-speed { font-family: var(--font-mono); color: #00ff88; }
+.model-use { color: var(--text-dim); }
+
+/* Workflow Section */
+.workflow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+  position: relative;
+}
+
+.workflow-steps::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.workflow-step {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.workflow-step .step-num {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--heading);
+  position: relative;
+  z-index: 1;
+}
+
+.workflow-step .step-content h4 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 0.4rem;
+}
+
+.workflow-step .step-content p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+/* Pricing Section */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.pricing-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2.5rem;
+  position: relative;
+}
+
+.pricing-card.featured {
+  border-color: #333;
+}
+
+.pricing-card.featured::before {
+  content: 'Most Popular';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.3rem 1rem;
+  background: var(--gradient);
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 100px;
+  font-family: var(--font-mono);
+}
+
+.pricing-card .plan-name {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 0.5rem;
+}
+
+.pricing-card .plan-price {
+  font-family: var(--font-mono);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 0.3rem;
+}
+
+.pricing-card .plan-price span {
+  font-size: 1rem;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.pricing-card .plan-desc {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+}
+
+.pricing-card .plan-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 2rem;
+}
+
+.pricing-card .plan-features li {
+  font-size: 0.9rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.pricing-card .plan-features li::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #00ff88;
+  flex-shrink: 0;
+}
+
+/* Comparison Section */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.comparison-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.comparison-card h4 {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.comparison-card.them h4 { color: #ff4444; }
+.comparison-card.us h4 { color: #00ff88; }
+
+.comparison-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.comparison-card ul li {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.comparison-card.them ul li::before { content: '\2717'; position: absolute; left: 0; color: #ff4444; }
+.comparison-card.us ul li::before { content: '\2713'; position: absolute; left: 0; color: #00ff88; }
+
+/* Testimonial / Quote */
+.quote-section {
+  padding: 4rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.quote-section blockquote {
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  font-weight: 300;
+  color: var(--heading);
+  line-height: 1.6;
+  font-style: italic;
+}
+
+.quote-section .quote-attr {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+/* Tech Stack */
+.tech-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.tech-tag {
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* CTA Section */
+.cta-section {
+  text-align: center;
+  padding: 6rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cta-section h2 {
+  margin-bottom: 1rem;
+}
+
+.cta-section p {
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+/* Install block */
+.install-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 3rem auto;
+  max-width: 600px;
+}
+
+.install-block h4 {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 1rem;
+}
+
+.install-block pre {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: #00D4FF;
+  line-height: 1.8;
+}
+
+/* Footer */
+footer {
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+footer .footer-brand {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--heading);
+  margin-bottom: 0.5rem;
+}
+
+footer .footer-tagline {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+}
+
+footer .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+footer .footer-links a {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+footer .footer-links a:hover { color: var(--heading); }
+
+footer .footer-copy {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  color: #444;
+}
+
+/* Gradient line separator */
+.gradient-line {
+  height: 1px;
+  background: var(--gradient);
+  opacity: 0.3;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  nav .nav-links { display: none; }
+  .hero-stats { flex-direction: column; gap: 1.5rem; }
+  .features-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .comparison-grid { grid-template-columns: 1fr; }
+  .arch-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <a href="#" class="logo">Black Mode <span>by BlackRoad</span></a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#models">Models</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#install" class="btn-primary">Get Started</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    v2.0 — Sovereign AI IDE
+  </div>
+  <h1>Your code never leaves <span class="gradient-text">your machine</span></h1>
+  <p class="subtitle">
+    Black Mode is an AI coding assistant that runs entirely on your hardware.
+    Ollama-powered, 52 TOPS local inference, multi-model routing.
+    Zero telemetry. Zero cloud dependency. Total sovereignty.
+  </p>
+  <div class="hero-actions">
+    <a href="#install" class="btn-primary">Install Black Mode</a>
+    <a href="#features" class="btn-secondary">See how it works</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-value">52</div>
+      <div class="stat-label">TOPS Inference</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">16</div>
+      <div class="stat-label">Local Models</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">0</div>
+      <div class="stat-label">Bytes Sent to Cloud</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">&lt;2s</div>
+      <div class="stat-label">Avg Response Time</div>
+    </div>
+  </div>
+</section>
+
+<div class="gradient-line"></div>
+
+<!-- Code Demo -->
+<section>
+  <div class="code-demo">
+    <div class="code-header">
+      <div class="dot-r"></div>
+      <div class="dot-y"></div>
+      <div class="dot-g"></div>
+      <span>black-mode-session.ts</span>
+    </div>
+    <pre><span class="comment">// Black Mode — intelligent model routing</span>
+<span class="keyword">import</span> { BlackMode } <span class="keyword">from</span> <span class="string">'@blackroad/black-mode'</span>;
+
+<span class="keyword">const</span> <span class="function">ide</span> = <span class="keyword">new</span> <span class="function">BlackMode</span>({
+  <span class="function">inferenceBackend</span>: <span class="string">'ollama'</span>,
+  <span class="function">hardwareAccel</span>: <span class="string">'hailo-8'</span>,       <span class="comment">// 26 TOPS per chip</span>
+  <span class="function">projectContext</span>: <span class="string">'./src'</span>,
+  <span class="function">routing</span>: {
+    <span class="function">fast</span>: <span class="string">'tinyllama'</span>,             <span class="comment">// autocomplete, quick edits</span>
+    <span class="function">code</span>: <span class="string">'codellama:13b'</span>,          <span class="comment">// refactoring, generation</span>
+    <span class="function">reasoning</span>: <span class="string">'mistral:7b'</span>,        <span class="comment">// architecture, debugging</span>
+    <span class="function">review</span>: <span class="string">'deepseek-coder:6.7b'</span>,  <span class="comment">// code review, security</span>
+  }
+});
+
+<span class="comment">// Ask anything — model selected automatically</span>
+<span class="keyword">const</span> result = <span class="keyword">await</span> ide.<span class="function">ask</span>(<span class="string">'Refactor this to use CRDT-based sync'</span>);
+<span class="comment">// Routes to codellama — code generation task detected</span>
+<span class="comment">// Response: 1.4s, 0 bytes sent externally</span></pre>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <h2>Built for developers who <span class="gradient-text">own their tools</span></h2>
+  <p class="section-sub">Every feature runs locally. No API keys, no usage limits, no surveillance.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="icon">&#9889;</div>
+      <h3>Multi-Model Routing</h3>
+      <p>Automatically selects the optimal model for each task. TinyLlama for speed, CodeLlama for generation, Mistral for reasoning. Context-aware switching with zero configuration needed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">&#128274;</div>
+      <h3>Zero Data Exfiltration</h3>
+      <p>Your code, your prompts, your context never touch any external server. All inference runs on local hardware. Network requests are logged and auditable. DNS-level verification included.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">&#128200;</div>
+      <h3>Project-Aware Context</h3>
+      <p>Black Mode indexes your entire codebase using local embeddings (nomic-embed-text). Ask questions about your architecture, get suggestions that understand your patterns, types, and conventions.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">&#128640;</div>
+      <h3>52 TOPS Local Inference</h3>
+      <p>Powered by dual Hailo-8 accelerators delivering 52 TOPS. Run 13B parameter models at interactive speed. No GPU required — purpose-built neural network processors handle the load.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">&#128736;</div>
+      <h3>Terminal-Native Interface</h3>
+      <p>No Electron bloat. Black Mode runs in your terminal with a TUI that stays out of your way. Pipe output to any tool. Chain commands. Script your AI workflows with standard UNIX primitives.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">&#128279;</div>
+      <h3>Git-Integrated Workflow</h3>
+      <p>Automatic commit message generation, PR descriptions, code review summaries. Integrates with Gitea and GitHub. Understands your branch strategy and suggests contextual changes.</p>
+    </div>
+  </div>
+</section>
+
+<div class="gradient-line"></div>
+
+<!-- Architecture -->
+<section id="architecture">
+  <h2>Architecture that <span class="gradient-text">respects your sovereignty</span></h2>
+  <p class="section-sub">Every component is self-hosted, auditable, and replaceable.</p>
+
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-label">Inference Layer</div>
+      <h4>Ollama Runtime</h4>
+      <p>Local model serving with automatic GGUF quantization, model caching, and hardware-specific optimization.</p>
+      <div class="arch-specs">
+        <div class="arch-spec"><span class="label">Backend</span><span class="value">Ollama v0.5+</span></div>
+        <div class="arch-spec"><span class="label">Accelerator</span><span class="value">Hailo-8 x2</span></div>
+        <div class="arch-spec"><span class="label">Throughput</span><span class="value">52 TOPS</span></div>
+        <div class="arch-spec"><span class="label">Models</span><span class="value">16 loaded</span></div>
+      </div>
+    </div>
+    <div class="arch-card">
+      <div class="arch-label">Context Engine</div>
+      <h4>Vector Search</h4>
+      <p>Qdrant-powered semantic search over your codebase. Embeddings generated locally with nomic-embed-text.</p>
+      <div class="arch-specs">
+        <div class="arch-spec"><span class="label">Engine</span><span class="value">Qdrant</span></div>
+        <div class="arch-spec"><span class="label">Embeddings</span><span class="value">nomic-embed-text</span></div>
+        <div class="arch-spec"><span class="label">Index Time</span><span class="value">&lt;30s / 10K files</span></div>
+        <div class="arch-spec"><span class="label">Query Time</span><span class="value">&lt;50ms</span></div>
+      </div>
+    </div>
+    <div class="arch-card">
+      <div class="arch-label">Routing Layer</div>
+      <h4>Smart Model Selection</h4>
+      <p>Classifies intent, estimates complexity, selects the optimal model. Falls back gracefully when hardware limits are reached.</p>
+      <div class="arch-specs">
+        <div class="arch-spec"><span class="label">Router</span><span class="value">ai-router.py</span></div>
+        <div class="arch-spec"><span class="label">Categories</span><span class="value">fast/code/reason/review</span></div>
+        <div class="arch-spec"><span class="label">Latency</span><span class="value">&lt;5ms overhead</span></div>
+        <div class="arch-spec"><span class="label">Accuracy</span><span class="value">94% intent match</span></div>
+      </div>
+    </div>
+    <div class="arch-card">
+      <div class="arch-label">Security Layer</div>
+      <h4>Zero-Trust Audit</h4>
+      <p>Every request logged, every response verified. Network traffic monitored for any external data leakage. Cryptographic session signing.</p>
+      <div class="arch-specs">
+        <div class="arch-spec"><span class="label">Audit</span><span class="value">SQLite + FTS5</span></div>
+        <div class="arch-spec"><span class="label">Signing</span><span class="value">Ed25519</span></div>
+        <div class="arch-spec"><span class="label">Network</span><span class="value">Zero outbound</span></div>
+        <div class="arch-spec"><span class="label">Compliance</span><span class="value">SOC2 ready</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="gradient-line"></div>
+
+<!-- Models -->
+<section id="models">
+  <h2>Models that run on <span class="gradient-text">your hardware</span></h2>
+  <p class="section-sub">Pre-configured routing for common development tasks. Add your own models at any time.</p>
+
+  <div style="overflow-x: auto;">
+    <table class="models-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Size</th>
+          <th>Speed</th>
+          <th>Best For</th>
+          <th>Route</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="model-name">TinyLlama 1.1B</td>
+          <td class="model-size">637MB</td>
+          <td class="model-speed">45 tok/s</td>
+          <td class="model-use">Autocomplete, quick edits, inline suggestions</td>
+          <td><code>fast</code></td>
+        </tr>
+        <tr>
+          <td class="model-name">CodeLlama 13B</td>
+          <td class="model-size">7.4GB</td>
+          <td class="model-speed">18 tok/s</td>
+          <td class="model-use">Code generation, refactoring, test writing</td>
+          <td><code>code</code></td>
+        </tr>
+        <tr>
+          <td class="model-name">Mistral 7B</td>
+          <td class="model-size">4.1GB</td>
+          <td class="model-speed">24 tok/s</td>
+          <td class="model-use">Architecture decisions, debugging, explanations</td>
+          <td><code>reasoning</code></td>
+        </tr>
+        <tr>
+          <td class="model-name">DeepSeek Coder 6.7B</td>
+          <td class="model-size">3.8GB</td>
+          <td class="model-speed">26 tok/s</td>
+          <td class="model-use">Code review, security analysis, optimization</td>
+          <td><code>review</code></td>
+        </tr>
+        <tr>
+          <td class="model-name">Nomic Embed Text</td>
+          <td class="model-size">274MB</td>
+          <td class="model-speed">1200 emb/s</td>
+          <td class="model-use">Codebase indexing, semantic search, context retrieval</td>
+          <td><code>embed</code></td>
+        </tr>
+        <tr>
+          <td class="model-name">Phi-2 2.7B</td>
+          <td class="model-size">1.7GB</td>
+          <td class="model-speed">35 tok/s</td>
+          <td class="model-use">Documentation, commit messages, PR descriptions</td>
+          <td><code>docs</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Workflow -->
+<section>
+  <h2>How Black Mode <span class="gradient-text">thinks</span></h2>
+  <p class="section-sub">From prompt to code in four steps, all on your machine.</p>
+
+  <div class="workflow-steps">
+    <div class="workflow-step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <h4>Intent Classification</h4>
+        <p>Your prompt is analyzed locally to determine task type: generation, refactoring, debugging, review, or documentation. This classification takes under 5ms with zero network calls.</p>
+      </div>
+    </div>
+    <div class="workflow-step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <h4>Context Retrieval</h4>
+        <p>Relevant code is pulled from your local vector index. File dependencies, type definitions, test patterns, and commit history are assembled into a rich context window.</p>
+      </div>
+    </div>
+    <div class="workflow-step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <h4>Model Routing</h4>
+        <p>The router selects the optimal model based on task complexity and available resources. Simple completions go to TinyLlama, complex generation to CodeLlama, reasoning tasks to Mistral.</p>
+      </div>
+    </div>
+    <div class="workflow-step">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <h4>Response + Audit</h4>
+        <p>Generated code is returned with inline diffs. Every interaction is logged to the local audit database with cryptographic signatures. You own the complete history.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="gradient-line"></div>
+
+<!-- Comparison -->
+<section>
+  <h2>Why not just use <span class="gradient-text">Copilot?</span></h2>
+  <p class="section-sub">We asked the same question. Then we looked at the network tab.</p>
+
+  <div class="comparison-grid">
+    <div class="comparison-card them">
+      <h4>Cloud-Based AI Coding Tools</h4>
+      <ul>
+        <li>Your code is sent to external servers for processing</li>
+        <li>Usage-based pricing that scales with your productivity</li>
+        <li>Dependent on API availability and rate limits</li>
+        <li>Telemetry and training on your proprietary code</li>
+        <li>No control over model selection or behavior</li>
+        <li>Requires constant internet connection</li>
+        <li>Terms of service can change without notice</li>
+      </ul>
+    </div>
+    <div class="comparison-card us">
+      <h4>Black Mode (Sovereign AI IDE)</h4>
+      <ul>
+        <li>All inference runs on your local hardware</li>
+        <li>One-time setup, unlimited usage forever</li>
+        <li>Works offline, on airplanes, in secure facilities</li>
+        <li>Zero telemetry, zero data collection, zero tracking</li>
+        <li>Full control over models, routing, and behavior</li>
+        <li>Works without internet after initial model download</li>
+        <li>Open protocol, you own the entire stack</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Quote -->
+<div class="quote-section">
+  <blockquote>"The best AI coding tool is the one that works when the internet goes down, and never phones home when it's up."</blockquote>
+  <div class="quote-attr">BlackRoad OS Engineering Principle #7</div>
+</div>
+
+<div class="gradient-line"></div>
+
+<!-- Pricing -->
+<section id="pricing">
+  <h2>Simple, <span class="gradient-text">honest pricing</span></h2>
+  <p class="section-sub">No per-token fees. No usage limits. Your hardware, your rules.</p>
+
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-name">Local</div>
+      <div class="plan-price">Free</div>
+      <div class="plan-desc">Everything you need to code with AI on your own machine.</div>
+      <ul class="plan-features">
+        <li>Full local inference engine</li>
+        <li>Multi-model routing (4 routes)</li>
+        <li>Project-aware context indexing</li>
+        <li>Terminal-native TUI interface</li>
+        <li>Git integration (commits, PRs, reviews)</li>
+        <li>Unlimited usage, zero rate limits</li>
+        <li>Community support via RoundTrip chat</li>
+      </ul>
+      <a href="#install" class="btn-secondary" style="width:100%;text-align:center;">Download Free</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="plan-name">Cloud Sync</div>
+      <div class="plan-price">$29 <span>/month</span></div>
+      <div class="plan-desc">Sync your context and settings across all your machines.</div>
+      <ul class="plan-features">
+        <li>Everything in Local, plus:</li>
+        <li>End-to-end encrypted context sync</li>
+        <li>Cross-machine model cache sharing</li>
+        <li>Team collaboration (up to 10 seats)</li>
+        <li>Priority model updates and fine-tunes</li>
+        <li>Dashboard with usage analytics</li>
+        <li>Direct support from the BlackRoad team</li>
+      </ul>
+      <a href="#install" class="btn-primary" style="width:100%;text-align:center;">Start Free Trial</a>
+    </div>
+  </div>
+</section>
+
+<!-- Tech Stack -->
+<section>
+  <h2>Built with <span class="gradient-text">proven technology</span></h2>
+  <p class="section-sub">No experimental dependencies. Every component is battle-tested.</p>
+
+  <div class="tech-list">
+    <span class="tech-tag">Ollama</span>
+    <span class="tech-tag">Hailo-8</span>
+    <span class="tech-tag">Qdrant</span>
+    <span class="tech-tag">nomic-embed-text</span>
+    <span class="tech-tag">SQLite + FTS5</span>
+    <span class="tech-tag">Python 3.12</span>
+    <span class="tech-tag">FastAPI</span>
+    <span class="tech-tag">Rust (core engine)</span>
+    <span class="tech-tag">TypeScript (extensions)</span>
+    <span class="tech-tag">WireGuard</span>
+    <span class="tech-tag">Ed25519</span>
+    <span class="tech-tag">GGUF quantization</span>
+    <span class="tech-tag">Tree-sitter</span>
+    <span class="tech-tag">CRDT sync</span>
+    <span class="tech-tag">Pi-hole DNS</span>
+  </div>
+</section>
+
+<div class="gradient-line"></div>
+
+<!-- Install -->
+<section id="install">
+  <div class="install-block">
+    <h4>Install in 30 seconds</h4>
+    <pre>
+<span style="color:#555"># Install Black Mode</span>
+curl -fsSL https://blackroad.io/install/black-mode | bash
+
+<span style="color:#555"># Or with Homebrew</span>
+brew install blackroad/tap/black-mode
+
+<span style="color:#555"># Pull default models</span>
+black-mode setup --models default
+
+<span style="color:#555"># Start coding</span>
+black-mode init ./my-project
+black-mode ask "Explain the architecture of this codebase"
+    </pre>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>Own your <span class="gradient-text">intelligence</span></h2>
+  <p>Stop renting AI from companies that train on your code. Start running models that answer only to you.</p>
+  <div class="cta-actions">
+    <a href="#install" class="btn-primary">Get Black Mode Free</a>
+    <a href="https://github.com/BlackRoad-AI/black-mode" class="btn-secondary">View on GitHub</a>
+  </div>
+</div>
+
+<div class="gradient-line"></div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-brand">BlackRoad OS</div>
+  <div class="footer-tagline">Pave Tomorrow.</div>
+  <div class="footer-links">
+    <a href="https://blackroad.io">Home</a>
+    <a href="https://github.com/BlackRoad-AI">GitHub</a>
+    <a href="https://roundtrip.blackroad.io">RoundTrip Chat</a>
+    <a href="https://docs.blackroad.io">Documentation</a>
+    <a href="mailto:alexa@blackroad.io">Contact</a>
+  </div>
+  <div class="footer-copy">Copyright 2025-2026 BlackRoad OS, Inc. All rights reserved. Delaware C-Corp.</div>
+</footer>
+
+</body>
+</html>
