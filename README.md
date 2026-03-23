@@ -1,5 +1,13 @@
 # black-mode
 
+> Black Mode — Sovereign AI IDE
+
+Part of the [BlackRoad OS](https://blackroad.io) ecosystem — [BlackRoad-AI](https://github.com/BlackRoad-AI)
+
+---
+
+# black-mode
+
 Black Mode — Sovereign AI IDE
 
 **BlackRoad-AI** — AI — models, inference, agents
